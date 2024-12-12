@@ -1,51 +1,120 @@
-export interface UserProfile {
-  id: string;
-  full_name: string | null;
-  subscription_tier: 'free' | 'pro' | 'enterprise';
-  subscription_status: 'active' | 'inactive' | 'cancelled';
-  summaries_used: number;
-  summaries_limit: number;
-  created_at: string;
-  updated_at: string;
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export interface Database {
+  public: {
+    Tables: {
+      feeds: {
+        Row: {
+          id: string
+          created_at: string
+          url: string
+          title: string
+          description: string | null
+          user_id: string
+          is_active: boolean
+          last_fetched: string | null
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          url: string
+          title: string
+          description?: string | null
+          user_id: string
+          is_active?: boolean
+          last_fetched?: string | null
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          url?: string
+          title?: string
+          description?: string | null
+          user_id?: string
+          is_active?: boolean
+          last_fetched?: string | null
+        }
+      }
+      profiles: {
+        Row: {
+          id: string
+          created_at: string
+          email: string
+          subscription_tier: 'basic' | 'pro'
+          stripe_customer_id: string | null
+          subscription_status: 'active' | 'inactive' | 'past_due' | 'canceled'
+        }
+        Insert: {
+          id: string
+          created_at?: string
+          email: string
+          subscription_tier?: 'basic' | 'pro'
+          stripe_customer_id?: string | null
+          subscription_status?: 'active' | 'inactive' | 'past_due' | 'canceled'
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          email?: string
+          subscription_tier?: 'basic' | 'pro'
+          stripe_customer_id?: string | null
+          subscription_status?: 'active' | 'inactive' | 'past_due' | 'canceled'
+        }
+      }
+      summaries: {
+        Row: {
+          id: string
+          created_at: string
+          feed_id: string
+          content: string
+          tldr: string
+          url: string
+          title: string
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          feed_id: string
+          content: string
+          tldr: string
+          url: string
+          title: string
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          feed_id?: string
+          content?: string
+          tldr?: string
+          url?: string
+          title?: string
+        }
+      }
+    }
+  }
 }
 
-export interface FeedSource {
-  id: string;
-  name: string;
-  url: string;
-  category: 'general' | 'financial' | 'culture';
-  tier: 'free' | 'premium';
-  active: boolean;
-  created_at: string;
+// Derived types
+export type Feed = Database['public']['Tables']['feeds']['Row']
+export type Profile = Database['public']['Tables']['profiles']['Row']
+export type Summary = Database['public']['Tables']['summaries']['Row']
+
+// API Response types for our Python backend
+export interface ScrapeResponse {
+  tldr: string
+  summary: string
 }
 
-export interface UserFeedPreference {
-  id: string;
-  user_id: string;
-  source_id: string;
-  created_at: string;
+export interface TldrResponse {
+  TLDR: string
 }
 
-export interface SavedSummary {
-  id: string;
-  user_id: string;
-  article_url: string;
-  title: string;
-  summary: string;
-  source_id: string | null;
-  created_at: string;
-}
-
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  price: number;
-  summaries_limit: number;
-  features: {
-    basic_sources: boolean;
-    premium_sources: boolean;
-    priority_processing: boolean;
-  };
-  active: boolean;
-  created_at: string;
+export interface SummaryResponse {
+  'Executive Summery': string  // Note: keeping the typo to match backend
 }
